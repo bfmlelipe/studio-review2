@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player de Áudio para Revisão</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Revisão de Mix/Master</h1>
+
+        <div class="audio-player">
+            <div id="waveform"></div>
+            <div class="controls">
+                <button id="playPauseBtn">Play/Pause</button>
+                <input type="file" id="audioFile" accept="audio/*">
+                <span id="currentTime">00:00</span> / <span id="totalDuration">00:00</span>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h2>Comentários</h2>
+            <div id="commentsList">
+                </div>
+
+            <div class="add-comment">
+                <h3>Adicionar Comentário</h3>
+                <textarea id="commentText" placeholder="Digite seu comentário aqui..."></textarea>
+                <button id="addCommentBtn">Adicionar Comentário no Tempo Atual</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

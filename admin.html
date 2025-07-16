@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loopers Studio - Painel de Administração</title>
+    <style>
+        body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            /* --- ALTERAÇÃO AQUI --- */
+            /* Define a imagem de fundo */
+            background-image: url('fundo-studio.png');
+            
+            /* Garante que a imagem cubra toda a tela */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Mantém o fundo fixo ao rolar a página */
+        }
+
+        /* --- Container Principal (Dashboard) --- */
+        .dashboard-container {
+            width: 100%;
+            max-width: 900px;
+			max-height: 600px;
+			height: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- Barra Lateral (Sidebar) --- */
+        .sidebar {
+            width: 240px;
+            background-color: #f4f6f9;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .sidebar nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar nav li a {
+            display: block;
+            color: #333;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar nav li a:hover {
+            background-color: #e9ecef;
+        }
+        
+        .sidebar nav li a.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* --- Conteúdo Principal --- */
+        .main-content {
+			height: 540px;
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .main-content h1 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        /* --- Formulários e Seções --- */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: -10px;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], select, input[type="file"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        input[type="file"] {
+            padding: 9px;
+        }
+        
+        input:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            align-self: flex-start;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* --- Listas de Itens Cadastrados --- */
+        .lista-cadastrados {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .lista-cadastrados ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .lista-cadastrados li {
+            background-color: #f9f9f9;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .lista-cadastrados li .faixa-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .lista-cadastrados li .faixa-info small {
+            color: #6c757d;
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+        
+        .lista-cadastrados li .tipo {
+            font-size: 0.8rem;
+            color: #6c757d;
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        /* --- Controle de Visibilidade das Views --- */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+			height: 530px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <h2>Loopers Studio</h2>
+            <nav>
+                <ul>
+                    <li><a href="#" id="nav-artistas" class="active">Artistas/Bandas</a></li>
+                    <li><a href="#" id="nav-faixas">Faixas</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div id="view-artistas" class="view active">
+                <h1>Gerenciar Artistas e Bandas</h1>
+                <form id="form-artista-banda">
+                    <label for="nome-artista-banda">Nome do Artista ou Banda:</label>
+                    <input type="text" id="nome-artista-banda" placeholder="Ex: João Silva ou Os Incríveis" required>
+                    <button type="submit">Cadastrar</button>
+                </form>
+
+                <div class="lista-cadastrados">
+                    <h3>Cadastrados</h3>
+                    <ul id="lista-artistas-bandas">
+                        </ul>
+                </div>
+            </div>
+
+            <div id="view-faixas" class="view">
+                <h1>Adicionar Faixas</h1>
+                <form id="form-faixa">
+                    <label for="select-artista-banda">Selecione o Artista/Banda:</label>
+                    <select id="select-artista-banda" required>
+                        <option value="" disabled selected>Escolha um artista ou banda</option>
+                        </select>
+
+                    <label for="nome-faixa">Nome da Faixa:</label>
+                    <input type="text" id="nome-faixa" placeholder="Ex: Canção da Manhã" required>
+                    
+                    <label for="arquivo-faixa">Arquivo de áudio:</label>
+                    <input type="file" id="arquivo-faixa" accept="audio/*" required>
+                    
+                    <button type="submit">Adicionar Faixa</button>
+                </form>
+                
+                <div class="lista-cadastrados">
+                    <h3>Faixas Adicionadas</h3>
+                    <ul id="lista-faixas">
+                         </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- ELEMENTOS DO DOM ---
+            const navArtistas = document.getElementById('nav-artistas');
+            const navFaixas = document.getElementById('nav-faixas');
+            const viewArtistas = document.getElementById('view-artistas');
+            const viewFaixas = document.getElementById('view-faixas');
+
+            const formArtistaBanda = document.getElementById('form-artista-banda');
+            const inputNomeArtistaBanda = document.getElementById('nome-artista-banda');
+            const listaArtistasBandas = document.getElementById('lista-artistas-bandas');
+
+            const formFaixa = document.getElementById('form-faixa');
+            const selectArtistaBanda = document.getElementById('select-artista-banda');
+            const inputNomeFaixa = document.getElementById('nome-faixa');
+            const inputArquivoFaixa = document.getElementById('arquivo-faixa'); // NOVO
+            const listaFaixas = document.getElementById('lista-faixas');
+
+            // --- FUNÇÕES DE DADOS (localStorage) ---
+            const getData = (key) => JSON.parse(localStorage.getItem(key)) || [];
+            const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+
+            // --- FUNÇÕES DE RENDERIZAÇÃO ---
+            function renderizarArtistasBandas() {
+                const artistas = getData('artistas_bandas');
+                listaArtistasBandas.innerHTML = '';
+                selectArtistaBanda.innerHTML = '<option value="" disabled selected>Escolha um artista ou banda</option>';
+                
+                if (artistas.length === 0) {
+                    listaArtistasBandas.innerHTML = '<li>Nenhum artista ou banda cadastrado.</li>';
+                } else {
+                    artistas.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item.nome;
+                        listaArtistasBandas.appendChild(li);
+
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.nome;
+                        selectArtistaBanda.appendChild(option);
+                    });
+                }
+            }
+            
+            function renderizarFaixas() {
+                const faixas = getData('faixas');
+                const artistas = getData('artistas_bandas');
+                listaFaixas.innerHTML = '';
+
+                if (faixas.length === 0) {
+                    listaFaixas.innerHTML = '<li>Nenhuma faixa adicionada.</li>';
+                } else {
+                    faixas.forEach(faixa => {
+                        const artista = artistas.find(a => a.id === faixa.artistaId);
+                        const nomeArtista = artista ? artista.nome : 'Desconhecido';
+                        
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <div class="faixa-info">
+                                <span>${faixa.nome}</span>
+                                <small>Arquivo: ${faixa.nomeArquivo}</small>
+                            </div>
+                            <span class="tipo">${nomeArtista}</span>
+                        `;
+                        listaFaixas.appendChild(li);
+                    });
+                }
+            }
+
+            // --- LÓGICA DE NAVEGAÇÃO ---
+            function trocarView(viewAtiva, navAtivo) {
+                viewArtistas.classList.remove('active');
+                viewFaixas.classList.remove('active');
+                navArtistas.classList.remove('active');
+                navFaixas.classList.remove('active');
+
+                viewAtiva.classList.add('active');
+                navAtivo.classList.add('active');
+            }
+
+            navArtistas.addEventListener('click', (e) => { e.preventDefault(); trocarView(viewArtistas, navArtistas); });
+            navFaixas.addEventListener('click', (e) => { e.preventDefault(); trocarView(viewFaixas, navFaixas); });
+
+            // --- EVENT LISTENERS DOS FORMULÁRIOS ---
+            formArtistaBanda.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nome = inputNomeArtistaBanda.value.trim();
+                if (nome) {
+                    const artistas = getData('artistas_bandas');
+                    artistas.push({ id: Date.now(), nome: nome });
+                    saveData('artistas_bandas', artistas);
+                    renderizarArtistasBandas();
+                    formArtistaBanda.reset();
+                }
+            });
+
+            formFaixa.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const artistaId = parseInt(selectArtistaBanda.value, 10);
+                const nomeFaixa = inputNomeFaixa.value.trim();
+                const arquivo = inputArquivoFaixa.files[0]; // Pega o arquivo do input
+
+                if (artistaId && nomeFaixa && arquivo) {
+                    const faixas = getData('faixas');
+                    const novaFaixa = {
+                        id: Date.now(),
+                        artistaId: artistaId,
+                        nome: nomeFaixa,
+                        nomeArquivo: arquivo.name // Salva o nome do arquivo
+                    };
+                    faixas.push(novaFaixa);
+                    saveData('faixas', faixas);
+                    renderizarFaixas();
+                    formFaixa.reset();
+                    selectArtistaBanda.selectedIndex = 0;
+                } else {
+                    alert('Por favor, preencha todos os campos, incluindo o arquivo de áudio.');
+                }
+            });
+
+            // --- INICIALIZAÇÃO ---
+            function init() {
+                renderizarArtistasBandas();
+                renderizarFaixas();
+                trocarView(viewArtistas, navArtistas);
+            }
+
+            init();
+        });
+    </script>
+
+</body>
+</html>

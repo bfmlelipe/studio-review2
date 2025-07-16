@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loopers Studio - Revisão de Áudio</title>
+    <style>
+        body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            /* --- ALTERAÇÃO AQUI --- */
+            /* Define a imagem de fundo */
+            background-image: url('fundo-studio.png');
+            
+            /* Garante que a imagem cubra toda a tela */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Mantém o fundo fixo ao rolar a página */
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            width: 90%;
+            max-width: 800px;
+        }
+		#logostudio{
+			width: 30%;
+			margin: 0;
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+			background-image: url('logo.png');
+			background-size: contain;
+            background-position: center;
+			background-repeat: no-repeat;
+		}
+        h1 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            text-align: center;
+            color: #333;
+        }
+        #waveform {
+            width: 100%;
+            height: 128px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        #currentTime {
+            font-size: 18px;
+            font-variant-numeric: tabular-nums;
+            color: #555;
+            min-width: 100px;
+        }
+        .comment-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        #commentInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        #commentsList {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 8px;
+        }
+        .comment-item {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .comment-item:hover {
+            background-color: #e2e6ea;
+        }
+        .comment-time {
+            font-weight: bold;
+            color: #007bff;
+            margin-right: 12px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .comment-text {
+            flex-grow: 1;
+        }
+        #file-loader {
+            margin-bottom: 20px;
+        }
+        #audio-info {
+            text-align: center;
+            color: #666;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+		<!-- <div class="logostudio"></div>-->
+        <h1>Loopers Studio (Revisão de Mix/Master)</h1>
+
+        <div id="audio-info">Carregue um arquivo de áudio para começar.</div>
+        <input type="file" id="fileInput" accept="audio/*">
+
+        <div id="waveform"></div>
+
+        <div class="controls">
+            <button id="playBtn" class="btn" disabled>Play</button>
+            <span id="currentTime">00:00.00</span>
+        </div>
+
+        <div class="comment-section">
+            <input type="text" id="commentInput" placeholder="Adicionar um comentário na posição atual..." disabled>
+            <button id="addCommentBtn" class="btn" disabled>Adicionar</button>
+        </div>
+
+        <h3>Comentários:</h3>
+        <ul id="commentsList">
+            </ul>
+    </div>
+
+    <script src="https://unpkg.com/wavesurfer.js@7"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+			let iduser = '1508';
+			alert(iduser);
+            const fileInput = document.getElementById('fileInput');
+            const playBtn = document.getElementById('playBtn');
+            const currentTimeEl = document.getElementById('currentTime');
+            const commentInput = document.getElementById('commentInput');
+            const addCommentBtn = document.getElementById('addCommentBtn');
+            const commentsList = document.getElementById('commentsList');
+            const audioInfo = document.getElementById('audio-info');
+            
+            let currentAudioKey = null; // Usado como chave no localStorage (nome do arquivo)
+            let comments = [];
+
+            // 1. INICIALIZAÇÃO DO WAVESURFER
+            const wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: '#adb5bd',
+                progressColor: '#007bff',
+                height: 128,
+                barWidth: 3,
+                barRadius: 3,
+                responsive: true,
+                cursorWidth: 2,
+                cursorColor: '#dc3545'
+            });
+
+            // 2. FUNÇÕES AUXILIARES
+            const formatTime = (seconds) => {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = (seconds % 60).toFixed(2);
+                return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.padStart(5, '0')}`;
+            };
+
+            const enableControls = (enable) => {
+                playBtn.disabled = !enable;
+                commentInput.disabled = !enable;
+                addCommentBtn.disabled = !enable;
+            };
+
+            // 3. LÓGICA DE COMENTÁRIOS
+            const renderComments = () => {
+                commentsList.innerHTML = '';
+                // Ordena os comentários por tempo
+                comments.sort((a, b) => a.time - b.time);
+                
+                comments.forEach(comment => {
+                    const li = document.createElement('li');
+                    li.className = 'comment-item';
+                    li.setAttribute('data-timestamp', comment.time);
+
+                    const timeSpan = document.createElement('span');
+                    timeSpan.className = 'comment-time';
+                    timeSpan.textContent = formatTime(comment.time);
+					
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'comment-text';
+                    textSpan.textContent = comment.text;
+                    
+                    li.appendChild(timeSpan);
+                    li.appendChild(textSpan);
+
+                    // Adiciona evento de clique para pular para o timestamp
+                    li.addEventListener('click', () => {
+						wavesurfer.play(comment.time);
+                    });
+
+                    commentsList.appendChild(li);
+                });
+            };
+
+            const loadComments = () => {
+                if (currentAudioKey) {
+                    const savedComments = localStorage.getItem(currentAudioKey);
+                    comments = savedComments ? JSON.parse(savedComments) : [];
+                    renderComments();
+                }
+            };
+            
+            const saveComments = () => {
+                if (currentAudioKey) {
+                    localStorage.setItem(currentAudioKey, JSON.stringify(comments));
+                }
+            };
+
+            // 4. EVENT LISTENERS DO WAVESURFER
+            wavesurfer.on('audioprocess', () => {
+                currentTimeEl.textContent = formatTime(wavesurfer.getCurrentTime());
+            });
+
+            wavesurfer.on('play', () => {
+                playBtn.textContent = 'Pause';
+            });
+
+            wavesurfer.on('pause', () => {
+                playBtn.textContent = 'Play';
+            });
+
+            wavesurfer.on('finish', () => {
+                playBtn.textContent = 'Play';
+                wavesurfer.seekTo(0);
+            });
+            
+            wavesurfer.on('ready', () => {
+                enableControls(true);
+                loadComments();
+            });
+
+            // 5. EVENT LISTENERS DA INTERFACE DO USUÁRIO
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    // Limpa estado anterior
+                    enableControls(false);
+                    comments = [];
+                    renderComments();
+                    playBtn.textContent = 'Play';
+
+                    // Define a nova chave de áudio e carrega o arquivo
+                    currentAudioKey = file.name;
+                    audioInfo.textContent = `Analisando: ${file.name}`;
+                    const url = URL.createObjectURL(file);
+                    wavesurfer.load(url);
+                }
+            });
+
+            playBtn.addEventListener('click', () => {
+                wavesurfer.playPause();
+            });
+
+            addCommentBtn.addEventListener('click', () => {
+                const commentText = commentInput.value.trim();
+                if (commentText) {
+                    const newComment = {
+                        time: wavesurfer.getCurrentTime(),
+                        text: commentText
+                    };
+                    comments.push(newComment);
+                    saveComments();
+                    renderComments();
+                    commentInput.value = '';
+                }
+            });
+            
+            // Permite adicionar comentário com a tecla Enter
+            commentInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    addCommentBtn.click();
+                }
+            });
+			document.addEventListener('keydown', function(event) {
+				// Verifica se a tecla é a barra de espaço
+				if (event.code === 'Space') {
+					// Se o foco estiver num input, textarea ou editable, não faz nada
+					const activeElement = document.activeElement;
+					const isTyping = (
+						activeElement.tagName === 'INPUT' ||
+						activeElement.tagName === 'TEXTAREA' ||
+						activeElement.isContentEditable
+					);
+
+					if (isTyping) return; // Não faz play/pause
+
+					event.preventDefault(); // Evita rolar a página
+
+					if (wavesurfer.isPlaying()) {
+						wavesurfer.pause();
+					} else {
+						wavesurfer.play();
+					}
+				}
+			});
+        });
+    </script>
+</body>
+</html>

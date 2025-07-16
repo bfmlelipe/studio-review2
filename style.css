@@ -1,0 +1,169 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    margin: 20px;
+    color: #333;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 900px;
+}
+
+h1, h2, h3 {
+    text-align: center;
+    color: #0056b3;
+    margin-bottom: 20px;
+}
+
+.audio-player {
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+#waveform {
+    width: 100%;
+    height: 120px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.controls button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.controls button:hover {
+    background-color: #0056b3;
+}
+
+.controls input[type="file"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#currentTime, #totalDuration {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.comments-section {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+#commentsList {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fdfdfd;
+}
+
+.comment-item {
+    background-color: #e9f7ff;
+    border: 1px solid #cce5ff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.comment-item:last-child {
+    margin-bottom: 0;
+}
+
+.comment-item strong {
+    color: #007bff;
+    margin-right: 10px;
+    cursor: pointer; /* Para indicar que é clicável */
+}
+
+.comment-item strong:hover {
+    text-decoration: underline;
+}
+
+.comment-item p {
+    flex-grow: 1;
+    margin: 0;
+    word-wrap: break-word; /* Garante que o texto quebre linhas longas */
+}
+
+.add-comment {
+    background-color: #f0f8ff;
+    border: 1px solid #d4eaff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+#commentText {
+    width: calc(100% - 20px);
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    margin-bottom: 15px;
+    resize: vertical; /* Permite redimensionar verticalmente */
+}
+
+#addCommentBtn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+#addCommentBtn:hover {
+    background-color: #218838;
+}
+
+/* Estilo para remover botão de comentário (opcional) */
+.delete-comment-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: color 0.2s;
+}
+
+.delete-comment-btn:hover {
+    color: #c82333;
+}
